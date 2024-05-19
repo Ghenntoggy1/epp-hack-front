@@ -18,7 +18,7 @@ export const commonApi = {
     return data;
   },
   getSpecializationsByUniversity: async (uniId: string) => {
-    const { data } = await axios.get(`/specializations/u/${uniId}`);
+    const { data } = await axios.get(`/specializations/univ_id:${uniId}`);
     return data;
   },
   getSpecializations: async (

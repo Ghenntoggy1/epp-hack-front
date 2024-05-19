@@ -72,7 +72,7 @@ const OfferPage = () => {
     queryKey: ["offer", router.query.id],
     queryFn: () => offersApi.getOfferById(router.query.id as string)
   });
-
+  console.log(data);
   const { data: specializationCourses } = useQuery({
     queryKey: ["specs", router.query.specialization],
     queryFn: () =>
@@ -217,7 +217,7 @@ const OfferPage = () => {
                     className="h-[600px] w-full bg-cover bg-center"
                     style={{
                       backgroundImage:
-                        'url("https://www.umultirank.org/export/sites/default/.galleries/generic-images/Others/Winter-Calendar/why-should-I-study-in-Milan.jpg_1612823784.jpg")'
+                        'url("https://www.wur.nl/upload/0c6e6bbc-9d45-445c-85cb-4324911db463_320009834_1350605529082720_8930238375430677250_n.jpg")'
                     }}
                   />
                 </div>

@@ -18,17 +18,6 @@ type FormData = {
   semester: number;
 };
 
-const universities = [
-  { university_id: "15", university_name: "Techical University of Moldova (UTM)" },
-  { university_id: "16", university_name: "State University of Moldova (USM)" },
-  { university_id: "12", university_name: "Academy of Economic Studies of Moldova (ASEM)" }
-];
-
-// const specializations = [
-//   { specialization_id: "0", specialization_name: "Software Engineering" },
-//   { specialization_id: "1" }
-// ];
-
 const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export const StudentModal = ({
@@ -48,6 +37,11 @@ export const StudentModal = ({
     watch
   } = useForm<FormData>({
     mode: "onChange"
+  });
+
+  const { data: universities } = useQuery({
+    queryKey: ["universities"],
+    queryFn: () => commonApi.getUniversities(),
   });
 
   const { data: specializations } = useQuery({
@@ -99,13 +93,13 @@ export const StudentModal = ({
                       onChange={(e) => {
                         // console.log(filter.options);
                         // the value is the index of the keys
-                        const value = universities?.[parseInt(e.target.value)].university_id;
+                        const value = universities?.[parseInt(e.target.value)]?.university_id;
                         // console.log(value, Object.keys(filter.options));
                         field.onChange(value);
                       }}
                       value={field.value as string}
                     >
-                      {universities.map((option, index) => (
+                      {universities?.map((option: any, index: number) => (
                         <SelectItem key={index} value={option.university_id}>
                           {option.university_name}
                         </SelectItem>
@@ -129,7 +123,7 @@ export const StudentModal = ({
                       onChange={(e) => {
                         // console.log(filter.options);
                         // the value is the index of the keys
-                        const value = specializations?.[parseInt(e.target.value)].specialization_id;
+                        const value = specializations?.[parseInt(e.target.value)]?.specialization_id;
                         // console.log(value, Object.keys(filter.options));
                         field.onChange(value);
                       }}

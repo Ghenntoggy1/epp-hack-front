@@ -18,12 +18,13 @@ const FooterItem = ({ field, value }: { field: string; value: string }) => (
 );
 
 const formatDate = (date: string) => {
-  const dateObj = new Date(date);
-  return dateObj.toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
-  });
+  //   const dateObj = new Date(date);
+  //   return dateObj.toLocaleDateString("en-US", {
+  //     day: "numeric",
+  //     month: "short",
+  //     year: "numeric"
+  //   });
+  return date;
 };
 
 interface OfferCardProps {
@@ -92,11 +93,25 @@ export const OfferCard: React.FC<OfferCardProps> = ({
         </div>
         <div className="flex items-center space-x-2">
           <Link href={`/opportunities/${id}`}>
-            {viewMore ? <Button color="primary">View more</Button> : <Button color="primary">Edit</Button>} 
+            {
+              viewMore ? <Button color="primary">View more</Button> : null
+              // <Button color="primary">Edit</Button>
+            }
           </Link>
-          {!viewMore ? <Button color="danger">Delete</Button> : <Button color="primary">Edit</Button>}
+          {!viewMore ? (
+            <>
+              <Button color="primary">Edit</Button>
+              <Button color="danger">Delete</Button>
+            </>
+          ) : null}
           {showCompare && (
-            <Button isIconOnly title="Add to comparison" variant="flat">
+            <Button
+              isIconOnly
+              color={isOfferInComparison ? "success" : undefined}
+              title="Add to comparison"
+              variant="flat"
+              onClick={handleToggleOffer}
+            >
               <Scale />
             </Button>
           )}
