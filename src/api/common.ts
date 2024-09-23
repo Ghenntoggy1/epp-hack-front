@@ -14,11 +14,11 @@ export const commonApi = {
     return data;
   },
   getUniversities: async () => {
-    const { data } = await axios.get("/universities");
+    const { data } = await axios.get("http://localhost:8080/api/universities");
     return data;
   },
   getSpecializationsByUniversity: async (uniId: string) => {
-    const { data } = await axios.get(`/specializations/u/${uniId}`);
+    const { data } = await axios.get(`http://localhost:8080/api/specializations/univ_id:${uniId}`);
     return data;
   },
   getSpecializations: async (
