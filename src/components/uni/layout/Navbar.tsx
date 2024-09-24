@@ -154,6 +154,26 @@ export const Navbar = () => {
               <Search className="pointer-events-none flex-shrink-0 text-2xl text-default-400" />
             }
           />
+          <Button className={clsx(
+                        "rounded-full bg-transparent px-5 py-2 text-base font-semibold  ",
+                        {
+                          "text-gray-200 hover:bg-primary-800": isWhite,
+                          "text-primary-800 hover:bg-primary-100": !isWhite,
+                          "!bg-primary-100 text-primary-800": router.pathname.includes("/login")
+                        }
+                      )}>
+            <Link href="/login">Login</Link>
+          </Button>
+          <Button className={clsx(
+                        "rounded-full bg-transparent px-5 py-2 text-base font-semibold  ",
+                        {
+                          "text-gray-200 hover:bg-primary-800": isWhite,
+                          "text-primary-800 hover:bg-primary-100": !isWhite,
+                          "!bg-primary-100 text-primary-800": router.pathname.includes("/register")
+                        }
+                      )}>
+            <Link href="/register">Register</Link>
+          </Button>
           <LanguageSwitcher />
         </div>
       </nav>

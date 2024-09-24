@@ -18,6 +18,7 @@ export const offersApi = {
         university,
         speciality,
         semester,
+        
         searchTerm,
         country,
         city,
@@ -27,6 +28,7 @@ export const offersApi = {
       }
     });
     console.log(data);
+    console.log(duration);
     return data;
   },
   getOfferById: async (id: string) => {

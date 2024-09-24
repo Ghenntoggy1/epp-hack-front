@@ -54,7 +54,7 @@ export const StudentModal = ({
     const studentData = {
       university: {
         id: data.university,
-        name: universities.find((u) => u.university_id === data.university)?.university_name
+        name: universities.find((u: { university_id: any; }) => u.university_id === data.university)?.university_name
       },
       specialization: {
         id: data.specialization,

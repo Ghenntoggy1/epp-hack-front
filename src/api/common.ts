@@ -1,6 +1,16 @@
 import { axios } from "@/lib";
+import { UserWithPassword } from "@/pages/uni/login/types/user";
 
 export const commonApi = {
+  signin: (credentials: { username: string; password: string }) => {
+    return axios.post("/auth/authenticate", credentials);
+  },
+  signup: (credentials: UserWithPassword) => {
+    return axios.post("/auth/register", credentials);
+  },
+  confirmEmail: (token: string) => {
+    return axios.get(`/confirm?token=${token}`);
+  },
   getCountries: async () => {
     const { data } = await axios.get("/countries");
     return data;
@@ -14,11 +24,11 @@ export const commonApi = {
     return data;
   },
   getUniversities: async () => {
-    const { data } = await axios.get("http://localhost:8080/api/universities");
+    const { data } = await axios.get("/universities");
     return data;
   },
   getSpecializationsByUniversity: async (uniId: string) => {
-    const { data } = await axios.get(`http://localhost:8080/api/specializations/univ_id:${uniId}`);
+    const { data } = await axios.get(`/specializations/univ_id:${uniId}`);
     return data;
   },
   getSpecializations: async (
