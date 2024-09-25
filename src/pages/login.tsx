@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 import { LayoutAuth } from "@/components/uni";
 import { Flex, Stack, Heading } from "@chakra-ui/react";
 import { useAuth } from "@/hooks";
-import { RegisterCard } from "@/pages/uni/login/RegisterCard";
+import { LoginCard } from "@/pages/uni/login/LoginCard";
 
-const signup = () => {
+const login = () => {
   const { user } = useAuth();
   const { push, query } = useRouter();
 
@@ -21,19 +21,19 @@ const signup = () => {
   }, [user]);
 
   return (
-    <LayoutAuth title="Sign Up">
+    <LayoutAuth title="Log In">
       <Flex align="center" justify="center">
         <Stack spacing={8} mx="auto" maxW="lg" px={6}>
           <Stack align="center">
             <Heading as="h1" fontSize="xx-large">
-              Register
+              Log In
             </Heading>
           </Stack>
-          <RegisterCard />
+          <LoginCard />
         </Stack>
       </Flex>
     </LayoutAuth>
   );
 };
 
-export default signup;
+export default login;

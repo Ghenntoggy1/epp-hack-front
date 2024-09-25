@@ -1,16 +1,6 @@
 import { axios } from "@/lib";
-import { UserWithPassword } from "@/pages/uni/login/types/user";
 
 export const commonApi = {
-  signin: (credentials: { username: string; password: string }) => {
-    return axios.post("/auth/authenticate", credentials);
-  },
-  signup: (credentials: UserWithPassword) => {
-    return axios.post("/auth/register", credentials);
-  },
-  confirmEmail: (token: string) => {
-    return axios.get(`/confirm?token=${token}`);
-  },
   getCountries: async () => {
     const { data } = await axios.get("/countries");
     return data;

@@ -64,6 +64,17 @@ export const Navbar = () => {
     }
   ];
 
+  const authLinks = [
+    {
+      title: "Login",
+      href: "/login"
+    },
+    {
+      title: "Register",
+      href: "/register"
+    }
+  ]
+
   const isWhite = router.pathname === "/";
 
   return (
@@ -154,26 +165,25 @@ export const Navbar = () => {
               <Search className="pointer-events-none flex-shrink-0 text-2xl text-default-400" />
             }
           />
-          <Button className={clsx(
-                        "rounded-full bg-transparent px-5 py-2 text-base font-semibold  ",
-                        {
-                          "text-gray-200 hover:bg-primary-800": isWhite,
-                          "text-primary-800 hover:bg-primary-100": !isWhite,
-                          "!bg-primary-100 text-primary-800": router.pathname.includes("/login")
-                        }
-                      )}>
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button className={clsx(
-                        "rounded-full bg-transparent px-5 py-2 text-base font-semibold  ",
-                        {
-                          "text-gray-200 hover:bg-primary-800": isWhite,
-                          "text-primary-800 hover:bg-primary-100": !isWhite,
-                          "!bg-primary-100 text-primary-800": router.pathname.includes("/register")
-                        }
-                      )}>
-            <Link href="/register">Register</Link>
-          </Button>
+          <ul className="flex items-center space-x-6">
+            {authLinks.map((link, index) => {
+              return (
+                <li
+                  key={index}
+                  className={clsx("rounded-full px-5 py-2 font-semibold text-gray-200", {
+                    "bg-primary-800": router.pathname === link.href && isWhite,
+                    "text-primary-800 hover:bg-primary-100":
+                      router.pathname === link.href && !isWhite,
+                    "hover:bg-primary-800": router.pathname !== link.href && isWhite,
+                    "text-primary-800 hover:bg-primary-100 ": !isWhite
+                  })}
+                >
+                  <Link href={link.href}>{link.title}</Link>
+                </li>
+              );
+            })}
+          </ul>
+          
           <LanguageSwitcher />
         </div>
       </nav>

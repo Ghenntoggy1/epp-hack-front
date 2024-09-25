@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { decodeToken } from "react-jwt";
 import { useRouter } from "next/router";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -12,12 +13,12 @@ import {
   Stack,
   Button,
   Text,
-  useToast,
+  Link,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
-import { auth } from "@/api/auth";
-import Link from "next/link";
+import { auth } from "@/api";
+import { useAuth } from "@/hooks";
 
 const initialFormValues = {
   name: "",
@@ -27,9 +28,9 @@ const initialFormValues = {
   password: "",
 };
 
-export const SignUpCard = () => {
+export const RegisterCard = () => {
   const router = useRouter();
-  const toast = useToast();
+  const { setUser } = useAuth();
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
@@ -40,96 +41,24 @@ export const SignUpCard = () => {
 
   const handleSubmit = (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
-
-    // check for password length and characters and email format
-    const { password } = formValues;
-    if (password.length < 8) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must be at least 8 characters long.",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const re = /[0-9]/;
-    if (!re.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one number (0-9).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const re2 = /[a-z]/;
-    if (!re2.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one lowercase letter (a-z).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const re3 = /[A-Z]/;
-    if (!re3.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one uppercase letter (A-Z).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const email = formValues.email;
-    const re4 = /\S+@\S+\.\S+/;
-    if (!re4.test(email)) {
-      toast({
-       title: "Something went wrong.",
-        description: "Email must be in the correct format.",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
     mutate(formValues);
   };
 
-  const { mutate } = useMutation({ mutationFn: auth.signup, 
+  const { mutate } = useMutation({mutationFn: auth.register, 
     onSuccess: ({ data }: any) => {
-      if (data.success) {
-        router.push("/email-confirm");
-        return;
-      }
-
-      const {message} = data;
-
-      toast({
-        title: "Something went wrong.",
-        description: message,
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
+      const { token } = data;
+      const decodedToken = decodeToken(token) as any;
+      const user = {
+        id: Number(decodedToken?.user_id),
+        username: formValues.username,
+        name: formValues.name,
+        surname: formValues.surname,
+        token,
+      };
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.log(error);
     },
   });
@@ -154,7 +83,7 @@ export const SignUpCard = () => {
               </FormControl>
             </Box>
             <Box>
-              <FormControl id="surname">
+              <FormControl id="surname" isRequired>
                 <FormLabel>Surname</FormLabel>
                 <Input type="text" onChange={handleChange} />
               </FormControl>
@@ -186,23 +115,21 @@ export const SignUpCard = () => {
             <Button
               loadingText="Submitting"
               size="lg"
-              backgroundColor='blue.500'
-              padding= '5px'
-              borderRadius="10"
-              borderColor= 'black'
+              bg="brand.400"
+              color="white"
               _hover={{
-                bg: "blue.600",
+                bg: "brand.500",
               }}
               type="submit"
             >
-              Sign up
+              Register
             </Button>
           </Stack>
           <Stack pt={6}>
             <Text align="center">
-              Already a user?{" "}
-              <Link  href="/login">
-                <Text color="brand.500" as="span">Log In</Text>
+              Have an account?{" "}
+              <Link color="brand.400" href="/login">
+                Log in
               </Link>
             </Text>
           </Stack>

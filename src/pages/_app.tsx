@@ -1,6 +1,7 @@
 import ComparisonInitializer from "@/components/uni/offer/ComparisonInitializer";
 import { AppStore, makeStore } from "@/lib/store";
 import "@/styles/globals.css";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { NextUIProvider } from "@nextui-org/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import clsx from "clsx";
@@ -15,6 +16,23 @@ const queryClient = new QueryClient();
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
+const theme = extendTheme({
+  colors: {
+    white: "#FFFFFF",
+    black: "#1A1A1A",
+    brand: {
+      100: "rgb(14, 176, 133, 0.1)",
+      400: "#004493",
+      500: "#002e62",
+      600: "#0b8e6b",
+    },
+    accent: {
+      200: "#fcdfcf",
+      500: "#F7A072",
+    },
+  }
+});
+
 export default function App({ Component, pageProps }: AppProps) {
   const storeRef = useRef<AppStore>();
 
@@ -28,14 +46,16 @@ export default function App({ Component, pageProps }: AppProps) {
         <QueryClientProvider client={queryClient}>
           <NextUIProvider>
             <NextThemesProvider attribute="class" defaultTheme="light">
-              <div className={clsx(inter.className, inter.variable)}>
-                <Toaster
-                  position="top-right"
-                  reverseOrder={false}
-                  toastOptions={{ duration: 3000 }}
-                />
-                <Component {...pageProps} />
-              </div>
+              <ChakraProvider theme={theme}>
+                <div className={clsx(inter.className, inter.variable)}>
+                  <Toaster
+                    position="top-right"
+                    reverseOrder={false}
+                    toastOptions={{ duration: 3000 }}
+                  />
+                  <Component {...pageProps} />
+                </div>
+              </ChakraProvider>
             </NextThemesProvider>
           </NextUIProvider>
         </QueryClientProvider>

@@ -1,12 +1,12 @@
 
 import { axios } from "@/lib";
-import { UserWithPassword } from "@/pages/uni/login/types/user";
+import { UserWithPassword } from "@/types/user";
 
 export const auth = {
-  signin: (credentials: { username: string; password: string }) => {
+  login: (credentials: { username: string; password: string }) => {
     return axios.post("/auth/authenticate", credentials);
   },
-  signup: (credentials: UserWithPassword) => {
+  register: (credentials: UserWithPassword) => {
     return axios.post("/auth/register", credentials);
   },
   confirmEmail: (token: string) => {
