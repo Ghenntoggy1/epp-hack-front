@@ -31,15 +31,34 @@ export const LoginCard = () => {
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
+  let token: any;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormValues((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    mutate(formValues);
-  };
+  // async function handleSubmit(credentials: any) {
+  //   if (formValues.username !== "" && formValues.password !== "") {
+  //     try {
+  //       token = await auth.login(credentials);
+  //       const decodedToken = decodeToken(token.data.token) as any;
+  //       console.log(decodedToken);
+  //       const user = {
+  //         id: Number(decodedToken?.user_id),
+  //         name: decodedToken?.firstName,
+  //         surname: decodedToken?.lastName,
+  //         username: formValues.username,
+  //         token: token.data.token,
+  //       };
+  //       setUser(user);
+  //       console.log(JSON.stringify(user));
+  //       localStorage.setItem("user", JSON.stringify(user));
+  //     }
+  //     catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // }
 
   const { mutate } = useMutation({mutationFn: auth.login, 
     onSuccess: ({ data }: any) => {
@@ -69,7 +88,6 @@ export const LoginCard = () => {
         boxShadow="sm"
         p={8}
         as="form"
-        onSubmit={handleSubmit}
       >
         <Stack spacing={4}>
           <FormControl id="username" isRequired>
@@ -91,18 +109,27 @@ export const LoginCard = () => {
             </InputGroup>
           </FormControl>
           <Stack spacing={10} pt={2}>
-            <Button
-              loadingText="Submitting"
-              size="lg"
-              bg="brand.400"
-              color="white"
-              _hover={{
-                bg: "brand.500",
-              }}
-              type="submit"
-            >
-              Log in
-            </Button>
+            {/* <div>
+              <form onSubmit={handleSubmit}> */}
+                <Button
+                  className="submit"
+                  loadingText="Submitting"
+                  size="lg"
+                  bg="brand.400"
+                  color="white"
+                  _hover={{
+                    bg: "brand.500",
+                  }}
+                  isDisabled={formValues.username === "" || formValues.password === ""}
+                  onClick={() => {
+                    mutate(formValues);
+                    
+                  }}
+                >
+                  Log in
+                </Button>
+              {/* </form>
+            </div> */}
           </Stack>
           <Stack pt={6}>
             <Text align="center">

@@ -4,7 +4,7 @@ import { UserWithPassword } from "@/types/user";
 
 export const auth = {
   login: (credentials: { username: string; password: string }) => {
-    return axios.post("/auth/authenticate", credentials);
+    return axios.post("/auth/login", credentials);
   },
   register: (credentials: UserWithPassword) => {
     return axios.post("/auth/register", credentials);
