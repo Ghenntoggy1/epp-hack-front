@@ -9,6 +9,9 @@ export const auth = {
   register: (credentials: UserWithPassword) => {
     return axios.post("/auth/register", credentials);
   },
+  validate: (credentials: { username: string; code: number }) => {
+    return axios.post("/auth/validate-mfa", credentials);
+  },
   confirmEmail: (token: string) => {
     return axios.get(`/confirm?token=${token}`);
   },

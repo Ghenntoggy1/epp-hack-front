@@ -11,9 +11,9 @@ const login = () => {
 
   useEffect(() => {
     if (user) {
-      const redirectProductId = decodeURIComponent(String(query.redirectProductId))
-      if (!!redirectProductId && redirectProductId !== 'undefined') {
-        push({ pathname: `/product/${redirectProductId}` })
+      const offerId = decodeURIComponent(String(query.offerId))
+      if (!!offerId && offerId !== 'undefined') {
+        push({ pathname: `/offers/${offerId}` })
       } else {
         push("/");
       }

@@ -1,4 +1,5 @@
 import ComparisonInitializer from "@/components/uni/offer/ComparisonInitializer";
+import { AuthProvider } from "@/context";
 import { AppStore, makeStore } from "@/lib/store";
 import "@/styles/globals.css";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
@@ -47,14 +48,16 @@ export default function App({ Component, pageProps }: AppProps) {
           <NextUIProvider>
             <NextThemesProvider attribute="class" defaultTheme="light">
               <ChakraProvider theme={theme}>
-                <div className={clsx(inter.className, inter.variable)}>
-                  <Toaster
-                    position="top-right"
-                    reverseOrder={false}
-                    toastOptions={{ duration: 3000 }}
-                  />
-                  <Component {...pageProps} />
-                </div>
+                <AuthProvider>
+                  <div className={clsx(inter.className, inter.variable)}>
+                    <Toaster
+                      position="top-right"
+                      reverseOrder={false}
+                      toastOptions={{ duration: 3000 }}
+                    />
+                    <Component {...pageProps} />
+                  </div>
+                </AuthProvider>
               </ChakraProvider>
             </NextThemesProvider>
           </NextUIProvider>

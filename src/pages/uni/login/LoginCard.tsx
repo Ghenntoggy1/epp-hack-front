@@ -19,6 +19,7 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 import { auth } from "@/api";
 import { useAuth } from "@/hooks";
+import { useCookies } from "react-cookie";
 
 const initialFormValues = {
   username: "",
@@ -28,6 +29,8 @@ const initialFormValues = {
 export const LoginCard = () => {
   const router = useRouter();
   const { setUser } = useAuth();
+  const { push, query } = useRouter();
+  const [cookie, setCookie] = useCookies(['token']);
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
@@ -37,42 +40,31 @@ export const LoginCard = () => {
     setFormValues((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
-  // async function handleSubmit(credentials: any) {
-  //   if (formValues.username !== "" && formValues.password !== "") {
-  //     try {
-  //       token = await auth.login(credentials);
-  //       const decodedToken = decodeToken(token.data.token) as any;
-  //       console.log(decodedToken);
-  //       const user = {
-  //         id: Number(decodedToken?.user_id),
-  //         name: decodedToken?.firstName,
-  //         surname: decodedToken?.lastName,
-  //         username: formValues.username,
-  //         token: token.data.token,
-  //       };
-  //       setUser(user);
-  //       console.log(JSON.stringify(user));
-  //       localStorage.setItem("user", JSON.stringify(user));
-  //     }
-  //     catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  // }
+  const handleSubmit = (e: FormEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    mutate(formValues);
+  };
 
-  const { mutate } = useMutation({mutationFn: auth.login, 
+  const { mutate } = useMutation({
+    mutationFn: auth.login, 
     onSuccess: ({ data }: any) => {
-      const { token } = data;
+      const msg = data.message;
+      if (msg === "Enter MFA code") {
+        push({ pathname: "/MFAVerify", query: { username: formValues.username } });
+        return;
+      }
+      const token = data.token;
       const decodedToken = decodeToken(token) as any;
       const user = {
-        id: Number(decodedToken?.user_id),
-        name: decodedToken?.firstName,
-        surname: decodedToken?.lastName,
-        username: formValues.username,
-        token,
+        username: decodedToken?.sub,
       };
-      setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
+      setCookie("token", token, { path: "/" });
+      const offerId = decodeURIComponent(String(query.offerId))
+      if (!!offerId && offerId !== 'undefined') {
+        push({ pathname: `/offers/${offerId}` })
+      } else {
+        push("/");
+      }
     },
     onError: (error) => {
       console.log(error);
@@ -122,8 +114,7 @@ export const LoginCard = () => {
                   }}
                   isDisabled={formValues.username === "" || formValues.password === ""}
                   onClick={() => {
-                    mutate(formValues);
-                    
+                    handleSubmit({ preventDefault: () => {} } as FormEvent<HTMLDivElement>);
                   }}
                 >
                   Log in

@@ -1,5 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { User } from "@/types";
+import { useCookies } from "react-cookie";
+import { decodeToken } from "react-jwt";
 
 type AuthState = {
   user: null | User;
@@ -18,17 +20,20 @@ export const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const [user, setUser] = useState<null | User>(null);
+  const [cookies, setCookie] = useCookies(["token"]);
 
   const logout = async () => {
     setUser(null);
+    setCookie("token", null, { path: "/" });
   };
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
+    const user = decodeToken(cookies.token) as User;
     if (user) {
-      setUser(JSON.parse(user));
+      setUser(user);
     }
-  }, []);
+    console.log(user);
+  }, [cookies.token]);
 
   return <AuthContext.Provider value={{ user, setUser, logout }}>{children}</AuthContext.Provider>;
 };
