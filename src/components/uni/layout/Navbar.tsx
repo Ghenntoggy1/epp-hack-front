@@ -3,14 +3,16 @@ import Link from "next/link";
 import { Popover, PopoverTrigger, PopoverContent, Button, Input } from "@nextui-org/react";
 
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Box, Search } from "lucide-react";
 import { LanguageSwitcher } from "../common";
 import { useComparison } from "@/lib/hooks";
 
 import { useAuth } from "@/hooks";
-import { Menu, MenuButton, Avatar, MenuList, MenuItem, MenuDivider } from "@chakra-ui/react";
+import { Menu, MenuButton, Avatar, MenuList, MenuItem, MenuDivider, Container } from "@chakra-ui/react";
 import { decodeToken } from "react-jwt";
+import { auth } from "@/api";
+import { useCookies } from "react-cookie";
 
 
 
@@ -37,6 +39,20 @@ export const Navbar = () => {
   const router = useRouter();
   const { offers } = useComparison();
   const { user, logout } = useAuth();
+  const [hasMFA, setHasMFA] = useState(false);
+  const [cookies, setCookies] = useCookies(['token']);
+
+  useEffect(() => {
+    if (user) {
+      auth.hasMFA({ username: user.username, token: cookies.token })
+        .then((res) => {
+          setHasMFA(res.data.hasMFA);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  }, [user]);
   
   console.log("User in Navbar:", user);
   const links = [
@@ -215,7 +231,17 @@ export const Navbar = () => {
           )}
           <LanguageSwitcher />
         </div>
+        
       </nav>
+      <Container
+        maxW={["container.sm", "container.md", "container.lg", "8xl"]}
+        h="full"
+        flex="1"
+        py={5}
+        as="main"
+      >
+      {user?.username ?? "Guest"}
+      </Container>
     </div>
   );
 };

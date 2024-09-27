@@ -15,4 +15,7 @@ export const auth = {
   confirmEmail: (token: string) => {
     return axios.get(`/confirm?token=${token}`);
   },
+  hasMFA: (credentials: { username: string, token: string }) => {
+    return axios.post("/auth/has-mfa", credentials);
+  }
 };

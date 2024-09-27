@@ -29,6 +29,7 @@ import MfaPrompt from "./MFAModal";
 
 import { auth } from "@/api";
 import { useAuth } from "@/hooks";
+import { useCookies } from "react-cookie";
 
 const initialFormValues = {
   firstName: "",
@@ -44,6 +45,7 @@ const initialFormValues = {
 export const RegisterCard = () => {
   const router = useRouter();
   const { setUser } = useAuth();
+  const [cookie, setCookie] = useCookies(['token']);
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
@@ -63,25 +65,20 @@ export const RegisterCard = () => {
   const { mutate } = useMutation({
     mutationFn: auth.register,
     onSuccess: ({ data }: any) => {
-      const { token } = data;
-      const decodedToken = decodeToken(token) as any;
-      const user = {
-        id: Number(decodedToken?.user_id),
-        username: formValues.username,
-        firstName: formValues.firstName,
-        lastName: formValues.lastName,
-        email: formValues.email,
-        nr_tel: formValues.phone,
-        enabled: formValues.enabled,
-        mfaEnabled: formValues.mfaEnabled,
-        token,
-      };
-      
       if (data.qrCode) {
-        setQrCode(data.qrCode); // Set the QR code to display in the modal
+        setQrCode(data.qrCode); 
         console.log("QR code:", data.qrCode);
-        setMfaPromptOpen(false); // Close the MFA prompt
-        onOpen(); // Open the modal to show the QR code
+        setMfaPromptOpen(false); 
+        onOpen();
+      }
+      else {
+        const token = data.token;
+        const decodedToken = decodeToken(token) as any;
+        const user = {
+          username: decodedToken?.sub,
+        };
+        setCookie("token", token, { path: "/" });
+        router.push("/");
       }
     },
     onError: (error) => {
