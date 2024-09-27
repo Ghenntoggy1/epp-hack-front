@@ -103,10 +103,38 @@ export const LoginCard = () => {
       });
       return;
     }
-    if (password.length > 20) {
+
+    const re = /[0-9]/;
+    if (!re.test(password)) {
       toast({
         title: "Something went wrong.",
-        description: "Password must be at most 20 characters long.",
+        description: "Password must contain at least one number (0-9).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re2 = /[a-z]/;
+    if (!re2.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one lowercase letter (a-z).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re3 = /[A-Z]/;
+    if (!re3.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one uppercase letter (A-Z).",
         status: "error",
         position: "top-right",
         duration: 5000,
