@@ -35,7 +35,6 @@ export const MFAButton = () => {
   return (
     !hasMFAStatus && cookies.token && (
         <Container className="container flex h-full items-center justify-center"
-          
         >
           It seems like you don't have MFA enabled. 
           <Button

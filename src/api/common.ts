@@ -1,24 +1,49 @@
 import { axios } from "@/lib";
+import { useEffect } from "react";
+import { useCookies } from "react-cookie";
 
 export const commonApi = {
-  getCountries: async () => {
-    const { data } = await axios.get("/countries");
+  
+
+  getCountries: async (token: string) => {
+    const { data } = await axios.get("/countries", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return data;
   },
-  getCities: async () => {
-    const { data } = await axios.get(`/cities`);
+  getCities: async (token: string) => {
+    const { data } = await axios.get(`/cities`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return data;
   },
-  getCategories: async () => {
-    const { data } = await axios.get("/categories");
+  getCategories: async (token: string) => {
+    const { data } = await axios.get("/categories", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return data;
   },
-  getUniversities: async () => {
-    const { data } = await axios.get("/universities");
+  getUniversities: async (token: string) => {
+    const { data } = await axios.get("/universities", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    
     return data;
   },
-  getSpecializationsByUniversity: async (uniId: string) => {
-    const { data } = await axios.get(`/specializations/univ_id:${uniId}`);
+  getSpecializationsByUniversity: async (uniId: string, token: string) => {
+    const { data } = await axios.get(`/specializations/univ_id:${uniId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return data;
   },
   getSpecializations: async (
@@ -31,9 +56,13 @@ export const commonApi = {
       university_id: string;
       speciality_id: string;
       semester: number;
-    }
+    },
+    token: string
   ) => {
     const { data } = await axios.get(`/specialization/${uniId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
       params: {
         university_id,
         speciality_id,
@@ -42,8 +71,12 @@ export const commonApi = {
     });
     return data;
   },
-  addOffer: async (data: OfferPostData) => {
-    const response = await axios.post("/offers", data);
+  addOffer: async (data: OfferPostData, token: string) => {
+    const response = await axios.post("/offers", data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return response;
   },
   getCostOfLiving: async (city_name: string, country_name: string) => {

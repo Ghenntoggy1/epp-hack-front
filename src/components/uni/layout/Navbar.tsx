@@ -187,7 +187,9 @@ export const Navbar = () => {
                 rounded="full"
                 variant="ghost"
                 cursor={"pointer"}
+                w="40px"
                 minW={0}
+                p={0}
               >
                 <Avatar
                   w="40px"
@@ -196,9 +198,9 @@ export const Navbar = () => {
                   colorScheme="brand"
                   bg="brand.500"
                   color="white"
+                  
                 />
               </MenuButton>
-
               <MenuList>
                 {loggedLinks.map((item) => (
                   <MenuItem key={item.title} color="brand.500">
