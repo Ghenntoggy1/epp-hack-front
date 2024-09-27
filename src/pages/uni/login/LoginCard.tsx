@@ -16,7 +16,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-
+import DOMPurify from 'dompurify';
 import { auth } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
@@ -45,30 +45,104 @@ export const LoginCard = () => {
   const handleSubmit = (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
 
-    // const username = formValues.username;
-    // if (username.length < 5) {
-    //   toast({
-    //     title: "Something went wrong.",
-    //     description: "Username must be at least 4 characters long.",
-    //     status: "error",
-    //     position: "top-right",
-    //     duration: 5000,
-    //     isClosable: true,
-    //   });
-    //   return;
-    // }
-    // if (username.length > 15) {
-    //   toast({
-    //     title: "Something went wrong.",
-    //     description: "Username must be at most 15 characters long.",
-    //     status: "error",
-    //     position: "top-right",
-    //     duration: 5000,
-    //     isClosable: true,
-    //   });
-    //   return;
-    // }
+    const username = DOMPurify.sanitize(formValues.username);
+    if (username.length === 0){
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing first name.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (username.length < 5) {
+      toast({
+        title: "Something went wrong.",
+        description: "Username must be at least 4 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (username.length > 15) {
+      toast({
+        title: "Something went wrong.",
+        description: "Username must be at most 15 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
 
+    const password = DOMPurify.sanitize(formValues.password);
+    if (password.length === 0) {
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing password.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (password.length < 8) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must be at least 8 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re = /[0-9]/;
+    if (!re.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one number (0-9).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re2 = /[a-z]/;
+    if (!re2.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one lowercase letter (a-z).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re3 = /[A-Z]/;
+    if (!re3.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one uppercase letter (A-Z).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    
     mutate(formValues);
   };
 
