@@ -145,6 +145,20 @@ export const RegisterCard = () => {
       return;
     }
 
+    const email = formValues.email;
+    const re4 = /\S+@\S+\.\S+/;
+    if (!re4.test(email)) {
+      toast({
+       title: "Something went wrong.",
+        description: "Email must be in the correct format.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const phone = formValues.phone;
     const rePhone = /^\+?[0-9. ()-]{7,25}$/;
     if (!rePhone.test(phone)) {
@@ -212,19 +226,6 @@ export const RegisterCard = () => {
       return;
     }
 
-    const email = formValues.email;
-    const re4 = /\S+@\S+\.\S+/;
-    if (!re4.test(email)) {
-      toast({
-       title: "Something went wrong.",
-        description: "Email must be in the correct format.",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
     setMfaPromptOpen(true);
   }
 
