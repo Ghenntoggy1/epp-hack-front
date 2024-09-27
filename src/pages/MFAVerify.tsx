@@ -46,7 +46,9 @@ const MFAVerify = () => {
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
       const { token } = data;
+      console.log("Token:", token); 
       setCookie('token', token, { path: '/' });
+      localStorage.setItem("hasMFA", "true");
       router.push("/");
     },
     onError: (error: any) => {

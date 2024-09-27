@@ -42,6 +42,11 @@ const initialFormValues = {
   mfaEnabled: false,
 };
 
+const inputFormMFA = {
+  username: "",
+  code: 0,
+};
+
 export const RegisterCard = () => {
   const router = useRouter();
   const { setUser } = useAuth();
@@ -86,16 +91,36 @@ export const RegisterCard = () => {
     },
   });
 
-  // Effect to handle redirection after 15 seconds when QR code is shown
-  useEffect(() => {
-    if (qrCode) {
-      const timer = setTimeout(() => {
-        router.push({ pathname: "/MFAVerify", query: { username: formValues.username } }); // Redirect to another page, e.g., login page after 15 seconds
-      }, 10000); // 15 seconds delay
 
-      return () => clearTimeout(timer); // Cleanup the timer on unmount or QR code change
+  const [mfaCode, setMfaCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const { user } = useAuth();
+
+  const { mutate: mutateMFA } = useMutation({
+    mutationFn: auth.validate,
+    onSuccess: ({ data }: any) => {
+      const { token } = data;
+      console.log("Token:", token); 
+      setCookie('token', token, { path: '/' });
+      localStorage.setItem("hasMFA", "true");
+      router.push("/");
+    },
+    onError: (error: any) => {
+      setErrorMessage("Invalid code, please try again.");
+    },
+  });
+
+  const handleSubmitMFA = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage(""); // Reset error message
+    if (mfaCode.trim().length !== 6) {
+      setErrorMessage("Code must be 6 digits long");
+      return;
     }
-  }, [qrCode, router]);
+    inputFormMFA.code = Number(mfaCode);
+    inputFormMFA.username = formValues.username;
+    mutateMFA(inputFormMFA);
+  };
 
   const handleMfaSetup = () => {
     console.log("Setting up MFA for:", formValues.phone);
@@ -197,6 +222,24 @@ export const RegisterCard = () => {
             {qrCode ? (
               <Box display="flex" justifyContent="center" alignItems="center">
                 <Image src={qrCode} alt="MFA QR Code" />
+                <form onSubmit={handleSubmitMFA}>
+                  <Stack spacing={4}>
+                    <FormControl isRequired>
+                      <FormLabel>Enter 6-Digit Code from Google Authenticator</FormLabel>
+                      <Input
+                        type="text"
+                        placeholder="123456"
+                        maxLength={6}
+                        value={mfaCode}
+                        onChange={(e) => setMfaCode(e.target.value)}
+                      />
+                    </FormControl>
+                    {errorMessage && <Text color="red.500">{errorMessage}</Text>}
+                    <Button type="submit" colorScheme="blue" size="lg" w="full">
+                      Verify
+                    </Button>
+                  </Stack>
+                </form>
               </Box>
             ) : (
               <Text>No QR code available</Text>

@@ -59,11 +59,12 @@ export const LoginCard = () => {
         username: decodedToken?.sub,
       };
       setCookie("token", token, { path: "/" });
+      localStorage.setItem("hasMFA", "false");
       const offerId = decodeURIComponent(String(query.offerId))
       if (!!offerId && offerId !== 'undefined') {
         push({ pathname: `/offers/${offerId}` })
       } else {
-        push("/");
+        push("/", query );
       }
     },
     onError: (error) => {
