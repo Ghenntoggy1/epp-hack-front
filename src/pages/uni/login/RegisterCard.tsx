@@ -24,6 +24,7 @@ import {
   useDisclosure,
   Image,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import MfaPrompt from "./MFAModal";
@@ -247,7 +248,14 @@ export const RegisterCard = () => {
       }
     },
     onError: (error) => {
-      console.log(error);
+      toast({
+        title: "Something went wrong.",
+        description: "Registration Failed.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
     },
   });
 
@@ -260,13 +268,19 @@ export const RegisterCard = () => {
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
       const { token } = data;
-      console.log("Token:", token); 
       setCookie('token', token, { path: '/' });
       localStorage.setItem("hasMFA", "true");
       router.push("/");
     },
     onError: (error: any) => {
-      setErrorMessage("Invalid code, please try again.");
+      toast({
+        title: "Something went wrong.",
+        description: "Invalid MFA Code.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
     },
   });
 
@@ -380,10 +394,15 @@ export const RegisterCard = () => {
           <ModalCloseButton />
           <ModalBody>
             {qrCode ? (
-              <Box display="flex" justifyContent="center" alignItems="center">
-                <Image src={qrCode} alt="MFA QR Code" />
+              <Box display="flex" justifyContent="center" alignItems="center" >
+                <Stack spacing={0}>
+                  <Box display="flex" justifyContent="center" alignItems="center">
+                    <Image src={qrCode} alt="MFA QR Code" width={"70%"} h={"70%"}/>
+                  </Box>
+                  <Text align="center">Scan the QR Code from above in Google Authentificator</Text>
+                </Stack>
                 <form onSubmit={handleSubmitMFA}>
-                  <Stack spacing={4}>
+                  <Stack spacing={10}>
                     <FormControl isRequired>
                       <FormLabel>Enter 6-Digit Code from Google Authenticator</FormLabel>
                       <Input

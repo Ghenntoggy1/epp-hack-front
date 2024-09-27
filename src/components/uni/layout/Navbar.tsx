@@ -242,6 +242,7 @@ export const Navbar = () => {
           <LanguageSwitcher />
         </div>
       </nav>
+      {/* <MFAButton /> */}
     </div>
   );
 };
