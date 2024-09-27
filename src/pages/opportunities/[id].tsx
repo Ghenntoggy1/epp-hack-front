@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -53,7 +54,8 @@ const livingIndices = [0, 1, 28, 36, 48];
 
 const OfferPage = () => {
   const router = useRouter();
-
+  const [cookie, setCookie] = useCookies(["token"]);
+  const token = cookie.token;
   const [studentDetails, setStudentDetails] = useState({
     university: {
       name: "",
@@ -70,7 +72,7 @@ const OfferPage = () => {
 
   const { data } = useQuery({
     queryKey: ["offer", router.query.id],
-    queryFn: () => offersApi.getOfferById(router.query.id as string)
+    queryFn: () => offersApi.getOfferById(router.query.id as string, token)
   });
 
   const { data: specializationCourses } = useQuery({
@@ -79,7 +81,7 @@ const OfferPage = () => {
       offersApi.getSpecializationById(studentDetails?.specialization?.id as string, {
         specialization_id: router.query.specialization,
         sem: studentDetails?.semester
-      }),
+      }, token),
     enabled: !!router.query.specialization
   });
 

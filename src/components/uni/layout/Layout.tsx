@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { Navbar } from "./Navbar";
+import { MFAButton } from "../common";
 
 interface LayoutProps {
   title: string;

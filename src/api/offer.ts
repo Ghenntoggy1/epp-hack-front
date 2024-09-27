@@ -12,12 +12,16 @@ export const offersApi = {
     duration,
     category,
     language
-  }: any) => {
+  }: any, token: string) => {
     const { data } = await axios.get("/offers", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
       params: {
         university,
         speciality,
         semester,
+        
         searchTerm,
         country,
         city,
@@ -27,17 +31,25 @@ export const offersApi = {
       }
     });
     console.log(data);
+    console.log(duration);
     return data;
   },
-  getOfferById: async (id: string) => {
-    const { data } = await axios.get(`/offers/${id}`);
+  getOfferById: async (id: string, token: string) => {
+    const { data } = await axios.get(`/offers/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return data;
   },
-  getSpecializationById: async (id: string, { specialization_id, sem }: any) => {
+  getSpecializationById: async (id: string, { specialization_id, sem }: any, token: string) => {
     const { data } = await axios.get(`/specializations/${id}`, {
       params: {
         specialization_id,
         sem
+      },
+      headers: {
+          Authorization: `Bearer ${token}`
       }
     });
     return data;

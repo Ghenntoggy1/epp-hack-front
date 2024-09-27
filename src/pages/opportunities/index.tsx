@@ -10,6 +10,7 @@ import { Offer } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { offersApi } from "@/api/offer";
 import { commonApi } from "@/api";
+import { useCookies } from "react-cookie";
 
 interface FilterOption {
   label: string;
@@ -95,8 +96,8 @@ const Opportunities = () => {
         city: router.query.city?.toString() || undefined,
         duration: router.query.duration?.toString() || undefined,
         category: router.query.category?.toString() || undefined,
-        language: router.query.language?.toString() || undefined
-      })
+        language: router.query.language?.toString() || undefined,
+      }, token),
   });
 
   useEffect(() => {
@@ -126,17 +127,18 @@ const Opportunities = () => {
   };
 
   const { register, control, watch, reset, getValues } = useForm<FormData>();
-
+  const [cookie, setCookie] = useCookies(["token"]);
+  const token = cookie.token;
   const { data: categoryOptions } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => commonApi.getCategories(),
+    queryFn: () => commonApi.getCategories(token),
     select: (data) =>
       data.map((category: any) => ({ value: category.category_id, label: category.category_name }))
   });
 
   const { data: cityOptions } = useQuery({
     queryKey: ["cities"],
-    queryFn: commonApi.getCities,
+    queryFn: () => commonApi.getCities(token),
     select: (data) => data.map((city: any) => ({ value: city.city_id, label: city.city_name }))
   });
 
