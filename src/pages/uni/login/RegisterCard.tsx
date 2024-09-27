@@ -365,7 +365,7 @@ export const RegisterCard = () => {
       return;
     }
     inputFormMFA.code = Number(mfaCode);
-    inputFormMFA.username = DOMPurify.sanitize(formValues.username);
+    inputFormMFA.username = formValues.username;
     mutateMFA(inputFormMFA);
   };
 
