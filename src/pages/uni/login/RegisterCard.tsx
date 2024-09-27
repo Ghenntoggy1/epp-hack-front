@@ -2,6 +2,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { decodeToken } from "react-jwt";
 import { useRouter } from "next/router";
 import { useMutation } from "@tanstack/react-query";
+import DOMPurify from 'dompurify';
+
 import {
   Box,
   FormControl,
@@ -68,12 +70,24 @@ export const RegisterCard = () => {
   const handleSubmit = (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
     mutate(formValues);
-  };
+      };
 
   const checkData = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    const name = formValues.firstName;
+    const name = DOMPurify.sanitize(formValues.firstName);
+    if (name.length === 0){
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing first name.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (name.length < 2) {
       toast({
         title: "Something went wrong.",
@@ -97,7 +111,19 @@ export const RegisterCard = () => {
       return;
     }
 
-    const surname = formValues.lastName;
+    const surname = DOMPurify.sanitize(formValues.lastName);
+    if (surname.length === 0){
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing last name.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    
     if (surname.length < 2) {
       toast({
         title: "Something went wrong.",
@@ -121,7 +147,19 @@ export const RegisterCard = () => {
       return;
     }
 
-    const username = formValues.username;
+    const username = DOMPurify.sanitize(formValues.username);
+    if (username.length === 0){
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing username.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (username.length < 5) {
       toast({
         title: "Something went wrong.",
@@ -145,7 +183,19 @@ export const RegisterCard = () => {
       return;
     }
 
-    const email = formValues.email;
+    const email = DOMPurify.sanitize(formValues.email);
+    if (name.length === 0){
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing email",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     const re4 = /\S+@\S+\.\S+/;
     if (!re4.test(email)) {
       toast({
@@ -159,7 +209,18 @@ export const RegisterCard = () => {
       return;
     }
 
-    const phone = formValues.phone;
+    const phone = DOMPurify.sanitize(formValues.phone);
+    if (phone.length === 0){
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing phone.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
     const rePhone = /^\+?[0-9. ()-]{7,25}$/;
     if (!rePhone.test(phone)) {
       toast({
@@ -173,7 +234,18 @@ export const RegisterCard = () => {
       return;
     }
 
-    const { password } = formValues;
+    const password = DOMPurify.sanitize(formValues.password);
+    if (password.length === 0){
+      toast({
+        title: "Something went wrong.",
+        description: "Error parsing password",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
 
     if (password.length < 8) {
       toast({
@@ -293,7 +365,7 @@ export const RegisterCard = () => {
       return;
     }
     inputFormMFA.code = Number(mfaCode);
-    inputFormMFA.username = formValues.username;
+    inputFormMFA.username = DOMPurify.sanitize(formValues.username);
     mutateMFA(inputFormMFA);
   };
 
