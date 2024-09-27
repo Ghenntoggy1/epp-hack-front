@@ -23,6 +23,7 @@ import {
   ModalCloseButton,
   useDisclosure,
   Image,
+  useToast,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import MfaPrompt from "./MFAModal";
@@ -30,6 +31,7 @@ import MfaPrompt from "./MFAModal";
 import { auth } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
+import { set } from "react-hook-form";
 
 const initialFormValues = {
   firstName: "",
@@ -51,7 +53,7 @@ export const RegisterCard = () => {
   const router = useRouter();
   const { setUser } = useAuth();
   const [cookie, setCookie] = useCookies(['token']);
-
+  const toast = useToast();
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
   const [isMfaPromptOpen, setMfaPromptOpen] = useState(false); // State to control MFA prompt
@@ -66,6 +68,164 @@ export const RegisterCard = () => {
     e.preventDefault();
     mutate(formValues);
   };
+
+  const checkData = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    const name = formValues.firstName;
+    if (name.length < 2) {
+      toast({
+        title: "Something went wrong.",
+        description: "First Name must be at least 2 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (name.length > 50) {
+      toast({
+        title: "Something went wrong.",
+        description: "First Name must be at most 50 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const surname = formValues.lastName;
+    if (surname.length < 2) {
+      toast({
+        title: "Something went wrong.",
+        description: "Last Name must be at least 2 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (surname.length > 50) {
+      toast({
+        title: "Something went wrong.",
+        description: "Last Name must be at most 50 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const username = formValues.username;
+    if (username.length < 5) {
+      toast({
+        title: "Something went wrong.",
+        description: "Username must be at least 4 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (username.length > 15) {
+      toast({
+        title: "Something went wrong.",
+        description: "Username must be at most 15 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const phone = formValues.phone;
+    const rePhone = /^\+?[0-9. ()-]{7,25}$/;
+    if (!rePhone.test(phone)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Phone number must be in the correct format.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const { password } = formValues;
+
+    if (password.length < 8) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must be at least 8 characters long.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re = /[0-9]/;
+    if (!re.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one number (0-9).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re2 = /[a-z]/;
+    if (!re2.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one lowercase letter (a-z).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const re3 = /[A-Z]/;
+    if (!re3.test(password)) {
+      toast({
+        title: "Something went wrong.",
+        description: "Password must contain at least one uppercase letter (A-Z).",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const email = formValues.email;
+    const re4 = /\S+@\S+\.\S+/;
+    if (!re4.test(email)) {
+      toast({
+       title: "Something went wrong.",
+        description: "Email must be in the correct format.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    setMfaPromptOpen(true);
+  }
 
   const { mutate } = useMutation({
     mutationFn: auth.register,
@@ -187,7 +347,7 @@ export const RegisterCard = () => {
                   bg: "brand.500",
                 }}
                 type="button" // Change to button to prevent form submission here
-                onClick={() => setMfaPromptOpen(true)} // Open MFA prompt
+                onClick={(e) => checkData(e)} // Open MFA prompt
               >
                 Register
               </Button>

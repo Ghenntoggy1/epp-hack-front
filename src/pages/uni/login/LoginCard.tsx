@@ -20,6 +20,7 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { auth } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
+import {useToast}  from "@chakra-ui/react";
 
 const initialFormValues = {
   username: "",
@@ -32,6 +33,7 @@ export const LoginCard = () => {
   const { push, query } = useRouter();
   const [cookie, setCookie] = useCookies(['token']);
 
+  const toast = useToast();
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
   let token: any;
@@ -42,6 +44,31 @@ export const LoginCard = () => {
 
   const handleSubmit = (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
+
+    // const username = formValues.username;
+    // if (username.length < 5) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Username must be at least 4 characters long.",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
+    // if (username.length > 15) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Username must be at most 15 characters long.",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
+
     mutate(formValues);
   };
 
@@ -69,6 +96,14 @@ export const LoginCard = () => {
     },
     onError: (error) => {
       console.log(error);
+      toast({
+        title: "Something went wrong.",
+        description: "Check your credentials and try again.",
+        status: "error",
+        position: "top-right",
+        duration: 5000,
+        isClosable: true,
+      });
     },
   });
 
