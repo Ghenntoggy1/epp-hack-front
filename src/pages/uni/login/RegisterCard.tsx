@@ -425,7 +425,7 @@ export const RegisterCard = () => {
               <Text>No QR code available</Text>
             )}
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter justifyContent={"center"}>
             <Button colorScheme="blue" onClick={onClose}>
               Close
             </Button>
