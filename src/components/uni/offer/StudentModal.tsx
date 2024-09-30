@@ -10,6 +10,7 @@ import {
   SelectItem
 } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
+import { useCookies } from "react-cookie";
 import { Controller, useForm } from "react-hook-form";
 
 type FormData = {
@@ -38,15 +39,15 @@ export const StudentModal = ({
   } = useForm<FormData>({
     mode: "onChange"
   });
-
+  const [cookie, setCookie] = useCookies(["token"]);
+  const token = cookie.token;
   const { data: universities } = useQuery({
     queryKey: ["universities"],
-    queryFn: () => commonApi.getUniversities(),
+    queryFn: () => commonApi.getUniversities(token),
   });
-
   const { data: specializations } = useQuery({
     queryKey: ["specializations", watch("university")],
-    queryFn: () => commonApi.getSpecializationsByUniversity(watch("university")),
+    queryFn: () => commonApi.getSpecializationsByUniversity(watch("university"), token),
     enabled: !!watch("university")
   });
 
@@ -54,7 +55,7 @@ export const StudentModal = ({
     const studentData = {
       university: {
         id: data.university,
-        name: universities.find((u) => u.university_id === data.university)?.university_name
+        name: universities.find((u: { university_id: any; }) => u.university_id === data.university)?.university_name
       },
       specialization: {
         id: data.specialization,

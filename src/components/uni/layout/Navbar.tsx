@@ -3,41 +3,65 @@ import Link from "next/link";
 import { Popover, PopoverTrigger, PopoverContent, Button, Input } from "@nextui-org/react";
 
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { Search } from "lucide-react";
-import { LanguageSwitcher } from "../common";
+import { use, useEffect, useState } from "react";
+import { Box, Search } from "lucide-react";
+import { LanguageSwitcher, MFAButton } from "../common";
 import { useComparison } from "@/lib/hooks";
 
-const links = [
+import { useAuth } from "@/hooks";
+import { Menu, MenuButton, Avatar, MenuList, MenuItem, MenuDivider, Container } from "@chakra-ui/react";
+import { decodeToken } from "react-jwt";
+import { auth } from "@/api";
+import { useCookies } from "react-cookie";
+import { set } from "react-hook-form";
+
+
+
+
+const authLinks = [
   {
-    title: "Home",
-    href: "/"
+    title: "Login",
+    href: "/login"
   },
   {
-    title: "Opportunities",
-    href: "/opportunities",
-    submenu: [
-      {
-        title: "All",
-        href: "/opportunities"
-      },
-      {
-        title: "Comparison",
-        href: "/opportunities/comparison",
-        badge: "1"
-      }
-    ]
-  },
-  {
-    title: "Success stories",
-    href: "/#"
+    title: "Register",
+    href: "/register"
   }
-];
+]
+
+const loggedLinks = [
+  {
+    title: "Profile",
+    href: "/profile"
+  }
+]
 
 export const Navbar = () => {
   const router = useRouter();
   const { offers } = useComparison();
-
+  const { user, logout } = useAuth();
+  const [cookies, setCookies] = useCookies(['token']);
+  const [username, setUsername] = useState("");
+  const [hasMFAStatus, setHasMFAStatus] = useState(false);
+  useEffect(() => {
+    const hasMFA = localStorage.getItem("hasMFA");
+    if (hasMFA === "true") {
+      setHasMFAStatus(true);
+    } else {
+      setHasMFAStatus(false);
+    }
+  }, []);
+  useEffect(() => {
+    if (cookies.token) {
+      const decodedToken = decodeToken(cookies.token) as any;
+      setUsername(decodedToken?.sub);
+    }
+    else {
+      setUsername("Guest");
+    }
+  }, [cookies.token]);
+  
+  console.log("User in Navbar:", user);
   const links = [
     {
       title: "Home",
@@ -154,9 +178,71 @@ export const Navbar = () => {
               <Search className="pointer-events-none flex-shrink-0 text-2xl text-default-400" />
             }
           />
+
+        {user ? 
+          (
+            <Menu>
+              <MenuButton
+                as={Button}
+                rounded="full"
+                variant="ghost"
+                cursor={"pointer"}
+                w="40px"
+                minW={0}
+                p={0}
+              >
+                <Avatar
+                  w="40px"
+                  h="40px"
+                  name={username}
+                  colorScheme="brand"
+                  bg="brand.500"
+                  color="white"
+                  
+                />
+              </MenuButton>
+              <MenuList>
+                {loggedLinks.map((item) => (
+                  <MenuItem key={item.title} color="brand.500">
+                    <Link href={item.href}>{item.title}</Link>
+                  </MenuItem>
+                ))}
+                <MenuDivider />
+                <MenuItem
+                  color="brand.500"
+                  onClick={() => {
+                    logout();
+                    router.push("/");
+                  }}
+                >
+                  Log out
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          ) : (
+            <ul className="flex items-center space-x-6">
+              {authLinks.map((link, index) => {
+                return (
+                  <li
+                    key={index}
+                    className={clsx("rounded-full px-5 py-2 font-semibold text-gray-200", {
+                      "bg-primary-800": router.pathname === link.href && isWhite,
+                      "text-primary-800 hover:bg-primary-100":
+                        router.pathname === link.href && !isWhite,
+                      "hover:bg-primary-800": router.pathname !== link.href && isWhite,
+                      "text-primary-800 hover:bg-primary-100 ": !isWhite
+                    })}
+                  >
+                    <Link href={link.href}>{link.title}</Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           <LanguageSwitcher />
         </div>
       </nav>
+      {/* <MFAButton /> */}
     </div>
   );
 };
