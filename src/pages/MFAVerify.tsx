@@ -37,6 +37,7 @@ const initialFormValues = {
 };
 
 const MFAVerify = () => {
+  const { push, query } = useRouter();
   const [mfaCode, setMfaCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
@@ -46,11 +47,11 @@ const MFAVerify = () => {
   const { mutate } = useMutation({
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
-      const  tokenType : TokenType = data;
+      const tokenType = data.token;
+      const decodedToken = decodeToken(tokenType) as TokenType;
 
-      console.log("Token:", tokenType);
-      setCookie('token', tokenType.token, { path: '/', expires: new Date(tokenType.exp * 1000), sameSite: 'strict', secure: true });
-      
+      setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
+
       localStorage.setItem("hasMFA", "true");
       router.push("/");
     },

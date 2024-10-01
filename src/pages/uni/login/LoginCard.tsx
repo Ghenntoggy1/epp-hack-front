@@ -143,7 +143,7 @@ export const LoginCard = () => {
     //   });
     //   return;
     // }
-    
+    console.log("Form Values:", formValues);
     mutate(formValues);
   };
 
@@ -157,6 +157,7 @@ export const LoginCard = () => {
       }
       const tokenType = data.token;
       const decodedToken = decodeToken(tokenType) as TokenType;
+      console.log("Data:", data);
       const user = {
         username: decodedToken?.username,
       };
