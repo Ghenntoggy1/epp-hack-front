@@ -14,6 +14,7 @@ import { decodeToken } from "react-jwt";
 import { auth } from "@/api";
 import { useCookies } from "react-cookie";
 import { set } from "react-hook-form";
+import { TokenType } from "@/types";
 
 
 
@@ -53,8 +54,8 @@ export const Navbar = () => {
   }, []);
   useEffect(() => {
     if (cookies.token) {
-      const decodedToken = decodeToken(cookies.token) as any;
-      setUsername(decodedToken?.sub);
+      const decodedToken = decodeToken(cookies.token) as TokenType;
+      setUsername(decodedToken?.username);
     }
     else {
       setUsername("Guest");

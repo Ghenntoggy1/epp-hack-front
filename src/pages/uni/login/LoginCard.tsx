@@ -21,6 +21,7 @@ import { auth } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
 import {useToast}  from "@chakra-ui/react";
+import { TokenType } from "@/types";
 
 const initialFormValues = {
   username: "",
@@ -92,56 +93,56 @@ export const LoginCard = () => {
       });
       return;
     }
-    if (password.length < 8) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must be at least 8 characters long.",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+    // if (password.length < 8) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must be at least 8 characters long.",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
 
-    const re = /[0-9]/;
-    if (!re.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one number (0-9).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+    // const re = /[0-9]/;
+    // if (!re.test(password)) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must contain at least one number (0-9).",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
 
-    const re2 = /[a-z]/;
-    if (!re2.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one lowercase letter (a-z).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+    // const re2 = /[a-z]/;
+    // if (!re2.test(password)) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must contain at least one lowercase letter (a-z).",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
 
-    const re3 = /[A-Z]/;
-    if (!re3.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one uppercase letter (A-Z).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+    // const re3 = /[A-Z]/;
+    // if (!re3.test(password)) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must contain at least one uppercase letter (A-Z).",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
     
     mutate(formValues);
   };
@@ -154,12 +155,16 @@ export const LoginCard = () => {
         push({ pathname: "/MFAVerify", query: { username: formValues.username } });
         return;
       }
-      const token = data.token;
-      const decodedToken = decodeToken(token) as any;
+      const tokenType = data.token;
+      const decodedToken = decodeToken(tokenType) as TokenType;
       const user = {
-        username: decodedToken?.sub,
+        username: decodedToken?.username,
       };
-      setCookie("token", token, { path: "/" });
+      console.log("User:", user);
+      console.log("Token:", tokenType);
+      console.log("Decoded Token:", decodedToken);
+      console.log("Token Expiration:", new Date(decodedToken.exp * 1000));
+      setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
       localStorage.setItem("hasMFA", "false");
       const offerId = decodeURIComponent(String(query.offerId))
       if (!!offerId && offerId !== 'undefined') {

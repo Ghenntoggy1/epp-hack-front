@@ -35,6 +35,7 @@ import { auth } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
 import { set } from "react-hook-form";
+import { TokenType } from "@/types";
 
 const initialFormValues = {
   firstName: "",
@@ -311,12 +312,17 @@ export const RegisterCard = () => {
         onOpen();
       }
       else {
-        const token = data.token;
-        const decodedToken = decodeToken(token) as any;
+        const tokenType = data.token;
+        const decodedToken = decodeToken(tokenType) as TokenType;
+        console.log("Token:", tokenType);
+        console.log("Decoded Token:", decodedToken);
         const user = {
-          username: decodedToken?.sub,
+          username: decodedToken?.username,
         };
-        setCookie("token", token, { path: "/" });
+        console.log("User:", user);
+        console.log("Token:", tokenType);
+        console.log("Decoded Token:", decodedToken);
+        setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
         router.push("/");
       }
     },
@@ -340,8 +346,17 @@ export const RegisterCard = () => {
   const { mutate: mutateMFA } = useMutation({
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
-      const { token } = data;
-      setCookie('token', token, { path: '/' });
+      const tokenType = data.token;
+      const decodedToken = decodeToken(tokenType) as TokenType;
+      console.log("Token:", tokenType);
+      console.log("Decoded Token:", decodedToken);
+      const user = {
+        username: decodedToken?.username,
+      };
+      console.log("User:", user);
+      console.log("Token:", tokenType);
+      console.log("Decoded Token:", decodedToken);
+      setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
       localStorage.setItem("hasMFA", "true");
       router.push("/");
     },

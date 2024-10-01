@@ -24,7 +24,8 @@ export const AuthProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const logout = async () => {
     setUser(null);
-    setCookie("token", null, { path: "/" });
+    setCookie("token", "", { path: "/", expires: new Date(0) });
+    
   };
 
   useEffect(() => {
