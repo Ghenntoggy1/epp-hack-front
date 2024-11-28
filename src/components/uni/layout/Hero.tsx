@@ -30,7 +30,7 @@ export const Hero = () => {
           </div>
         </div>
         <div className="relative ml-10 w-full">
-          <img src="/images/p034305002101-704290.jpg" width={"80%"} height={"80%"}  className="h-auto min-w-[760px] animate-bounce" />
+          <img src="/images/p034305002101-704290.jpg" width={"80%"} height={"80%"} className="h-auto min-w-[760px] animate-bounce" />
         </div>
       </div>
     </div>

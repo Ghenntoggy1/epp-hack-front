@@ -41,18 +41,13 @@ const MFAVerify = () => {
   const [mfaCode, setMfaCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const { user } = useAuth();
-  const [cookies, setCookie] = useCookies(['token'])
+  const { user, login } = useAuth();
+
 
   const { mutate } = useMutation({
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
-      const tokenType = data.token;
-      const decodedToken = decodeToken(tokenType) as TokenType;
-
-      setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
-
-      localStorage.setItem("hasMFA", "true");
+      login();
       router.push("/");
     },
     onError: (error: any) => {

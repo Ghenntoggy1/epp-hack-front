@@ -31,7 +31,7 @@ import {
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import MfaPrompt from "./MFAModal";
 
-import { auth } from "@/api";
+import { auth, commonApi } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
 import { set } from "react-hook-form";
@@ -301,7 +301,7 @@ export const RegisterCard = () => {
 
     setMfaPromptOpen(true);
   }
-
+  const [username, setUsername] = useState("");
   const { mutate } = useMutation({
     mutationFn: auth.register,
     onSuccess: ({ data }: any) => {
@@ -312,17 +312,7 @@ export const RegisterCard = () => {
         onOpen();
       }
       else {
-        const tokenType = data.token;
-        const decodedToken = decodeToken(tokenType) as TokenType;
-        console.log("Token:", tokenType);
-        console.log("Decoded Token:", decodedToken);
-        const user = {
-          username: decodedToken?.username,
-        };
-        console.log("User:", user);
-        console.log("Token:", tokenType);
-        console.log("Decoded Token:", decodedToken);
-        setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
+        login();
         router.push("/");
       }
     },
@@ -341,23 +331,12 @@ export const RegisterCard = () => {
 
   const [mfaCode, setMfaCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const { user } = useAuth();
+  const { user, login } = useAuth();
 
   const { mutate: mutateMFA } = useMutation({
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
-      const tokenType = data.token;
-      const decodedToken = decodeToken(tokenType) as TokenType;
-      console.log("Token:", tokenType);
-      console.log("Decoded Token:", decodedToken);
-      const user = {
-        username: decodedToken?.username,
-      };
-      console.log("User:", user);
-      console.log("Token:", tokenType);
-      console.log("Decoded Token:", decodedToken);
-      setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
-      localStorage.setItem("hasMFA", "true");
+      login();
       router.push("/");
     },
     onError: (error: any) => {
@@ -371,6 +350,21 @@ export const RegisterCard = () => {
       });
     },
   });
+
+  const { mutate: getUsernameMutate } = useMutation({
+    mutationFn: commonApi.getUsername, 
+    onSuccess: (data: any) => {
+      console.log("Data in getUsernameMutate:", data);
+      setUsername(data.username);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  useEffect(() => {
+    getUsernameMutate();
+  }, []);
 
   const handleSubmitMFA = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

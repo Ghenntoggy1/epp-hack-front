@@ -1,7 +1,6 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { decodeToken } from "react-jwt";
 import { useRouter } from "next/router";
-import { useMutation } from "@tanstack/react-query";
 import {
   Box,
   FormControl,
@@ -17,11 +16,13 @@ import {
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import DOMPurify from 'dompurify';
-import { auth } from "@/api";
+import { auth, commonApi } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
 import {useToast}  from "@chakra-ui/react";
-import { TokenType } from "@/types";
+import { TokenType, User } from "@/types";
+import { useMutation } from "@tanstack/react-query";
+import { set } from "react-hook-form";
 
 const initialFormValues = {
   username: "",
@@ -30,14 +31,12 @@ const initialFormValues = {
 
 export const LoginCard = () => {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const { setUser, user, login } = useAuth();
   const { push, query } = useRouter();
-  const [cookie, setCookie] = useCookies(['token']);
-
   const toast = useToast();
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
-  let token: any;
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormValues((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -146,6 +145,27 @@ export const LoginCard = () => {
     console.log("Form Values:", formValues);
     mutate(formValues);
   };
+  const [username, setUsername] = useState("");
+  const { mutate: getUsernameMutate } = useMutation({
+    mutationFn: commonApi.getUsername, 
+    onSuccess: (response: any) => {
+      if (response?.username) {
+        setUsername(response.username);
+      } else {
+        console.warn("Response does not contain data.");
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      console.log("User:", user);
+      getUsernameMutate();
+    }
+  }, [user]);
 
   const { mutate } = useMutation({
     mutationFn: auth.login, 
@@ -155,18 +175,9 @@ export const LoginCard = () => {
         push({ pathname: "/MFAVerify", query: { username: formValues.username } });
         return;
       }
-      const tokenType = data.token;
-      const decodedToken = decodeToken(tokenType) as TokenType;
-      console.log("Data:", data);
-      const user = {
-        username: decodedToken?.username,
-      };
-      console.log("User:", user);
-      console.log("Token:", tokenType);
-      console.log("Decoded Token:", decodedToken);
-      console.log("Token Expiration:", new Date(decodedToken.exp * 1000));
-      setCookie('token', tokenType, { path: '/', expires: new Date(decodedToken.exp * 1000), sameSite: 'strict', secure: true });
-      localStorage.setItem("hasMFA", "false");
+
+      login();
+      
       const offerId = decodeURIComponent(String(query.offerId))
       if (!!offerId && offerId !== 'undefined') {
         push({ pathname: `/offers/${offerId}` })
