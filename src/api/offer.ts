@@ -14,9 +14,6 @@ export const offersApi = {
     language
   }: any, token: string) => {
     const { data } = await axios.get("/offers", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
       params: {
         university,
         speciality,
@@ -35,11 +32,7 @@ export const offersApi = {
     return data;
   },
   getOfferById: async (id: string, token: string) => {
-    const { data } = await axios.get(`/offers/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get(`/offers/${id}`);
     return data;
   },
   getSpecializationById: async (id: string, { specialization_id, sem }: any, token: string) => {
@@ -47,9 +40,6 @@ export const offersApi = {
       params: {
         specialization_id,
         sem
-      },
-      headers: {
-          Authorization: `Bearer ${token}`
       }
     });
     return data;

@@ -16,7 +16,8 @@ import {
 
 import { useAuth } from "@/hooks";
 import { auth } from "@/api";
-
+import { TokenType } from "@/types";
+ 
 const inputForm = {
   username: "",
   code: 0,
@@ -36,19 +37,17 @@ const initialFormValues = {
 };
 
 const MFAVerify = () => {
+  const { push, query } = useRouter();
   const [mfaCode, setMfaCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const { user } = useAuth();
-  const [cookies, setCookie] = useCookies(['token'])
+  const { user, login } = useAuth();
+
 
   const { mutate } = useMutation({
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
-      const { token } = data;
-      console.log("Token:", token); 
-      setCookie('token', token, { path: '/' });
-      localStorage.setItem("hasMFA", "true");
+      login();
       router.push("/");
     },
     onError: (error: any) => {

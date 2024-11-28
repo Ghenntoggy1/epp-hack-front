@@ -1,7 +1,6 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { decodeToken } from "react-jwt";
 import { useRouter } from "next/router";
-import { useMutation } from "@tanstack/react-query";
 import {
   Box,
   FormControl,
@@ -17,10 +16,13 @@ import {
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import DOMPurify from 'dompurify';
-import { auth } from "@/api";
+import { auth, commonApi } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
 import {useToast}  from "@chakra-ui/react";
+import { TokenType, User } from "@/types";
+import { useMutation } from "@tanstack/react-query";
+import { set } from "react-hook-form";
 
 const initialFormValues = {
   username: "",
@@ -29,14 +31,12 @@ const initialFormValues = {
 
 export const LoginCard = () => {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const { setUser, user, login } = useAuth();
   const { push, query } = useRouter();
-  const [cookie, setCookie] = useCookies(['token']);
-
   const toast = useToast();
   const [formValues, setFormValues] = useState(initialFormValues);
   const [showPassword, setShowPassword] = useState(false);
-  let token: any;
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormValues((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -92,59 +92,80 @@ export const LoginCard = () => {
       });
       return;
     }
-    if (password.length < 8) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must be at least 8 characters long.",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+    // if (password.length < 8) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must be at least 8 characters long.",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
 
-    const re = /[0-9]/;
-    if (!re.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one number (0-9).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+    // const re = /[0-9]/;
+    // if (!re.test(password)) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must contain at least one number (0-9).",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
 
-    const re2 = /[a-z]/;
-    if (!re2.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one lowercase letter (a-z).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+    // const re2 = /[a-z]/;
+    // if (!re2.test(password)) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must contain at least one lowercase letter (a-z).",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
 
-    const re3 = /[A-Z]/;
-    if (!re3.test(password)) {
-      toast({
-        title: "Something went wrong.",
-        description: "Password must contain at least one uppercase letter (A-Z).",
-        status: "error",
-        position: "top-right",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-    
+    // const re3 = /[A-Z]/;
+    // if (!re3.test(password)) {
+    //   toast({
+    //     title: "Something went wrong.",
+    //     description: "Password must contain at least one uppercase letter (A-Z).",
+    //     status: "error",
+    //     position: "top-right",
+    //     duration: 5000,
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
+    console.log("Form Values:", formValues);
     mutate(formValues);
   };
+  const [username, setUsername] = useState("");
+  const { mutate: getUsernameMutate } = useMutation({
+    mutationFn: commonApi.getUsername, 
+    onSuccess: (response: any) => {
+      if (response?.username) {
+        setUsername(response.username);
+      } else {
+        console.warn("Response does not contain data.");
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      console.log("User:", user);
+      getUsernameMutate();
+    }
+  }, [user]);
 
   const { mutate } = useMutation({
     mutationFn: auth.login, 
@@ -154,13 +175,9 @@ export const LoginCard = () => {
         push({ pathname: "/MFAVerify", query: { username: formValues.username } });
         return;
       }
-      const token = data.token;
-      const decodedToken = decodeToken(token) as any;
-      const user = {
-        username: decodedToken?.sub,
-      };
-      setCookie("token", token, { path: "/" });
-      localStorage.setItem("hasMFA", "false");
+
+      login();
+      
       const offerId = decodeURIComponent(String(query.offerId))
       if (!!offerId && offerId !== 'undefined') {
         push({ pathname: `/offers/${offerId}` })

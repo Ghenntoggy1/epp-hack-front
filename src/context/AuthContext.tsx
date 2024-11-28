@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { User } from "@/types";
 import { useCookies } from "react-cookie";
 import { decodeToken } from "react-jwt";
+import { auth, commonApi } from "@/api";
 
 type AuthState = {
   user: null | User;
@@ -10,30 +11,45 @@ type AuthState = {
 type AuthContextType = AuthState & {
   setUser: (user: User) => void;
   logout: () => Promise<void>;
+  login: () => void;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   setUser: () => {},
   logout: () => Promise.resolve(),
+  login: () => {},
 });
 
 export const AuthProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const [user, setUser] = useState<null | User>(null);
-  const [cookies, setCookie] = useCookies(["token"]);
 
   const logout = async () => {
-    setUser(null);
-    setCookie("token", null, { path: "/" });
+    await auth.logout();
+    setUser(null);    
   };
 
   useEffect(() => {
-    const user = decodeToken(cookies.token) as User;
-    if (user) {
-      setUser(user);
-    }
-    console.log(user);
-  }, [cookies.token]);
+    commonApi.getUsername().then((user: User) => {
+      if (user) {
+        setUser(user);
+      }
+    }).catch(error => {
+      console.error("Error getting user data:", error);
+      setUser(null);
+    });
+  }, []);
 
-  return <AuthContext.Provider value={{ user, setUser, logout }}>{children}</AuthContext.Provider>;
+  const login = async () => {
+    commonApi.getUsername().then((user: User) => {
+      if (user) {
+        setUser(user);
+      }
+    }).catch(error => {
+      console.error("Error getting user data:", error);
+      setUser(null);
+    });
+  }
+
+  return <AuthContext.Provider value={{ user, setUser, logout, login }}>{children}</AuthContext.Provider>;
 };

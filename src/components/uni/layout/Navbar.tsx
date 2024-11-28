@@ -7,15 +7,16 @@ import { use, useEffect, useState } from "react";
 import { Box, Search } from "lucide-react";
 import { LanguageSwitcher, MFAButton } from "../common";
 import { useComparison } from "@/lib/hooks";
-
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks";
 import { Menu, MenuButton, Avatar, MenuList, MenuItem, MenuDivider, Container } from "@chakra-ui/react";
 import { decodeToken } from "react-jwt";
 import { auth } from "@/api";
 import { useCookies } from "react-cookie";
 import { set } from "react-hook-form";
-
-
+import { TokenType } from "@/types";
+import { commonApi } from "@/api";
+import { AuthContext } from "@/context/AuthContext";
 
 
 const authLinks = [
@@ -40,7 +41,6 @@ export const Navbar = () => {
   const router = useRouter();
   const { offers } = useComparison();
   const { user, logout } = useAuth();
-  const [cookies, setCookies] = useCookies(['token']);
   const [username, setUsername] = useState("");
   const [hasMFAStatus, setHasMFAStatus] = useState(false);
   useEffect(() => {
@@ -51,17 +51,28 @@ export const Navbar = () => {
       setHasMFAStatus(false);
     }
   }, []);
-  useEffect(() => {
-    if (cookies.token) {
-      const decodedToken = decodeToken(cookies.token) as any;
-      setUsername(decodedToken?.sub);
-    }
-    else {
-      setUsername("Guest");
-    }
-  }, [cookies.token]);
   
-  console.log("User in Navbar:", user);
+  const { mutate: getUsernameMutate } = useMutation({
+    mutationFn: commonApi.getUsername, 
+    onSuccess: (response: any) => {
+      if (response?.username) {
+        setUsername(response.username);
+      } else {
+        console.warn("Response does not contain data.");
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      getUsernameMutate();
+    }
+  }, [user]);
+  
+
   const links = [
     {
       title: "Home",

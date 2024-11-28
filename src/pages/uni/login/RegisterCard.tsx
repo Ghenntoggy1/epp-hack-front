@@ -31,10 +31,11 @@ import {
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import MfaPrompt from "./MFAModal";
 
-import { auth } from "@/api";
+import { auth, commonApi } from "@/api";
 import { useAuth } from "@/hooks";
 import { useCookies } from "react-cookie";
 import { set } from "react-hook-form";
+import { TokenType } from "@/types";
 
 const initialFormValues = {
   firstName: "",
@@ -300,7 +301,7 @@ export const RegisterCard = () => {
 
     setMfaPromptOpen(true);
   }
-
+  const [username, setUsername] = useState("");
   const { mutate } = useMutation({
     mutationFn: auth.register,
     onSuccess: ({ data }: any) => {
@@ -311,12 +312,7 @@ export const RegisterCard = () => {
         onOpen();
       }
       else {
-        const token = data.token;
-        const decodedToken = decodeToken(token) as any;
-        const user = {
-          username: decodedToken?.sub,
-        };
-        setCookie("token", token, { path: "/" });
+        login();
         router.push("/");
       }
     },
@@ -335,14 +331,12 @@ export const RegisterCard = () => {
 
   const [mfaCode, setMfaCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const { user } = useAuth();
+  const { user, login } = useAuth();
 
   const { mutate: mutateMFA } = useMutation({
     mutationFn: auth.validate,
     onSuccess: ({ data }: any) => {
-      const { token } = data;
-      setCookie('token', token, { path: '/' });
-      localStorage.setItem("hasMFA", "true");
+      login();
       router.push("/");
     },
     onError: (error: any) => {
@@ -356,6 +350,21 @@ export const RegisterCard = () => {
       });
     },
   });
+
+  const { mutate: getUsernameMutate } = useMutation({
+    mutationFn: commonApi.getUsername, 
+    onSuccess: (data: any) => {
+      console.log("Data in getUsernameMutate:", data);
+      setUsername(data.username);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  useEffect(() => {
+    getUsernameMutate();
+  }, []);
 
   const handleSubmitMFA = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

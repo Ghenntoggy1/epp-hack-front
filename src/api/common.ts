@@ -3,47 +3,29 @@ import { useEffect } from "react";
 import { useCookies } from "react-cookie";
 
 export const commonApi = {
-  
-
+  getUsername: async () => {
+    const { data } = await axios.get("/users/userdata");
+    return data;
+  },
   getCountries: async (token: string) => {
-    const { data } = await axios.get("/countries", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get("/countries");
     return data;
   },
   getCities: async (token: string) => {
-    const { data } = await axios.get(`/cities`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get(`/cities`);
     return data;
   },
   getCategories: async (token: string) => {
-    const { data } = await axios.get("/categories", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get("/categories");
     return data;
   },
   getUniversities: async (token: string) => {
-    const { data } = await axios.get("/universities", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get("/universities");
     
     return data;
   },
   getSpecializationsByUniversity: async (uniId: string, token: string) => {
-    const { data } = await axios.get(`/specializations/univ_id:${uniId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get(`/specializations/univ_id:${uniId}`);
     return data;
   },
   getSpecializations: async (
@@ -60,9 +42,6 @@ export const commonApi = {
     token: string
   ) => {
     const { data } = await axios.get(`/specialization/${uniId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
       params: {
         university_id,
         speciality_id,
@@ -72,11 +51,7 @@ export const commonApi = {
     return data;
   },
   addOffer: async (data: OfferPostData, token: string) => {
-    const response = await axios.post("/offers", data, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response = await axios.post("/offers", data);
     return response;
   },
   getCostOfLiving: async (city_name: string, country_name: string) => {
